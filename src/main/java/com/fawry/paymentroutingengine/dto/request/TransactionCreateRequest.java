@@ -1,6 +1,6 @@
 package com.fawry.paymentroutingengine.dto.request;
 
-import com.fawry.paymentroutingengine.constent.Urgency;
+import com.fawry.paymentroutingengine.constant.Urgency;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

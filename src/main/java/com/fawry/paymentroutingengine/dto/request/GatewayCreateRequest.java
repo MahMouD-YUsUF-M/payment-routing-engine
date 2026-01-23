@@ -1,6 +1,6 @@
 package com.fawry.paymentroutingengine.dto.request;
 
-import com.fawry.paymentroutingengine.constent.DayType;
+import com.fawry.paymentroutingengine.constant.DayType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -41,8 +41,6 @@ import java.util.List;
 public class GatewayCreateRequest {
 
 
-
-
     @NotBlank(message = "Gateway name is required")
     @Size(max = 255, message = "Gateway name must not exceed 255 characters")
     private String name;
@@ -72,7 +70,7 @@ public class GatewayCreateRequest {
     private BigDecimal processingTime;
 
     @NotNull(message = "Please put his active status")
-    Boolean isActive;
+    private Boolean isActive;
 
     @Valid
     @NotEmpty(message = "At least one availability schedule is required")

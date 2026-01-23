@@ -1,7 +1,7 @@
 package com.fawry.paymentroutingengine.dto.request;
 
 import jakarta.validation.Valid;
-import com.fawry.paymentroutingengine.constent.DayType;
+import com.fawry.paymentroutingengine.constant.DayType;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -83,7 +83,7 @@ public class GatewayUpdateRequest {
     @PositiveOrZero(message = "processing time must be zero or positive")
     private BigDecimal processingTime;
 
-    Boolean isActive;
+    private Boolean isActive;
 
 
     @Valid

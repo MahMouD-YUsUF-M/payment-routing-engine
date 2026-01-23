@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import com.fawry.paymentroutingengine.constent.UserRole;
+import com.fawry.paymentroutingengine.constant.UserRole;
 import java.time.LocalDateTime;
 
 @Entity

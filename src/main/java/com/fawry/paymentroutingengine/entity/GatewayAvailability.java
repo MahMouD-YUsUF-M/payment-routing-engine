@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import com.fawry.paymentroutingengine.constent.DayType;
+import com.fawry.paymentroutingengine.constant.DayType;
 
 import java.time.LocalDateTime;
 

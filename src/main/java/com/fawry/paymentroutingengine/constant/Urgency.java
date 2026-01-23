@@ -1,4 +1,4 @@
-package com.fawry.paymentroutingengine.constent;
+package com.fawry.paymentroutingengine.constant;
 
 public enum Urgency {
     INSTANT,
