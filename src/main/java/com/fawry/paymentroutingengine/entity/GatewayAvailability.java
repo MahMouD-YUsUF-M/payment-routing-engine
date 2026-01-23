@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.fawry.paymentroutingengine.constent.DayType;
 
 import java.time.LocalDateTime;
 
@@ -48,7 +49,5 @@ public class GatewayAvailability {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public enum DayType {
-        MON, TUE, WED, THU, FRI, SAT, SUN, ALL
     }
-}
+

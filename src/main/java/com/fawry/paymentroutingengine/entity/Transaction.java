@@ -49,9 +49,6 @@ public class Transaction {
     @Column(name = "processing_time", length = 50)
     private String processingTime;
 
-    @Column(name = "failure_reason", length = 500)
-    private String failureReason;
-
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
