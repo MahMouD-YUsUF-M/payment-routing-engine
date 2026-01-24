@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fawry.paymentroutingengine.constant.DayType;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "gateway_availability" , uniqueConstraints = @UniqueConstraint(
@@ -33,10 +34,10 @@ public class GatewayAvailability {
     private DayType dayWeek;
 
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @Column(name = "is_24_7")
     private Boolean is24_7 = false;

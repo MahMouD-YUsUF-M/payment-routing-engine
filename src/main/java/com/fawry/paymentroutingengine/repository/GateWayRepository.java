@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface GateWayRepository extends JpaRepository<Gateway, Integer> {
+public interface GateWayRepository extends JpaRepository<Gateway, Long> {
+
+List<Gateway> findByIsActiveTrue();
 
 
 }

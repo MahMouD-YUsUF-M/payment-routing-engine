@@ -25,10 +25,10 @@ public class DailyQuota {
     private Integer id;
 
     @Column(name = "biller_id", nullable = false)
-    private Integer billerId;
+    private Long billerId;
 
     @Column(name = "gateway_id", nullable = false)
-    private Integer gatewayId;
+    private Long gatewayId;
 
     @Column(name = "quota_date", nullable = false)
     private LocalDate quotaDate;

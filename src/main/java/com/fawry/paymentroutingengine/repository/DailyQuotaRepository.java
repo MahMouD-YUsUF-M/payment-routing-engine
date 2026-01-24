@@ -15,4 +15,7 @@ import java.util.Optional;
 @Repository
 public interface DailyQuotaRepository extends JpaRepository<DailyQuota, Integer> {
 
+
+
+    Optional<DailyQuota>  findByBillerIdAndGatewayIdAndQuotaDate(Long billerId, Long gateWayId, LocalDate date );
 }

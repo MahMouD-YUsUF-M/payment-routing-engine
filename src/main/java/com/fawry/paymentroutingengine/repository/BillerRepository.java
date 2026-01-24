@@ -9,4 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface BillerRepository extends JpaRepository<Biller, Integer> {
+
+    Optional<Biller> findByCode(String code);
+
+    boolean existsByCode(String code);
 }

@@ -1,5 +1,6 @@
 package com.fawry.paymentroutingengine.entity;
 
+import com.fawry.paymentroutingengine.constant.Urgency;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -56,6 +57,15 @@ public class Gateway {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Urgency getUrgencyFromProcessingTime() {
+        if (this.processingTime.compareTo(BigDecimal.ZERO) <= 0) {
+            return Urgency.INSTANT;
+        }
+        else {
+            return Urgency.CAN_WAIT;
+        }
+    }
 
 }
 
