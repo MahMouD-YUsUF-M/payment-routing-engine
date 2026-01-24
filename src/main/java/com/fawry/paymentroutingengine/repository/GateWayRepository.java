@@ -14,5 +14,9 @@ public interface GateWayRepository extends JpaRepository<Gateway, Long> {
 
 List<Gateway> findByIsActiveTrue();
 
+    Optional<Gateway> findByCode(String code);
 
+    void deleteById(Long aLong);
+
+    boolean existsByCode(String code);
 }

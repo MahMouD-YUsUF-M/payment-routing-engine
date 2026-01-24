@@ -22,4 +22,8 @@ public interface GatewayAvailabilityRepository extends JpaRepository<GatewayAvai
             @Param("dayOfWeek") DayType dayOfWeek
     );
 
+    void deleteByGatewayId(Long gatewayId);
+
+
+    List<GatewayAvailability> findByGatewayId(Long gatewayId);
 }

@@ -17,4 +17,6 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
+    List<Transaction> findByBillerId(Long billerId);
+    List<Transaction> findByBillerIdAndCreatedAtBetween(Long billerId, LocalDateTime start, LocalDateTime end);
 }
