@@ -426,7 +426,7 @@ FUNCTION recommendGateway(billerCode, amount, urgency):
 ┌─────────────┐         ┌──────────────────┐         ┌─────────────────┐
 │   BILLERS   │         │ PAYMENT_GATEWAYS │         │GATEWAY_         │
 │             │         │                  │         │AVAILABILITY     │
-│ id_biller   │◄───┐    │ id_gateway (PK)  │◄────────│                 │
+│ id          │◄───┐    │ id         (PK)  │◄────────│                 │
 │ code        │    │    │ code             │         │ gateway_id (FK) │
 │ name        │    │    │ commission_fixed │         │ day_of_week     │
 │ email       │    │    │ commission_%     │         │ start_time      │
@@ -459,7 +459,7 @@ FUNCTION recommendGateway(billerCode, amount, urgency):
 #### 1. `billers` - Merchants/Clients
 ```sql
 CREATE TABLE billers (
-    id_biller INT PRIMARY KEY AUTO_INCREMENT,
+    id  INT PRIMARY KEY AUTO_INCREMENT,
     code_biller VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255),
@@ -470,7 +470,7 @@ CREATE TABLE billers (
 #### 2. `payment_gateways` - Gateway Configurations
 ```sql
 CREATE TABLE payment_gateways (
-    id_gateway INT PRIMARY KEY AUTO_INCREMENT,
+    id  INT PRIMARY KEY AUTO_INCREMENT,
     code_gateway VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     commission_fixed DECIMAL(10,2) NOT NULL,
@@ -486,7 +486,7 @@ CREATE TABLE payment_gateways (
 #### 3. `gateway_availability` - Operating Hours
 ```sql
 CREATE TABLE gateway_availability (
-    id_availability INT PRIMARY KEY AUTO_INCREMENT,
+    id   INT PRIMARY KEY AUTO_INCREMENT,
     gateway_id INT NOT NULL,
     day_of_week VARCHAR(10) NOT NULL,  -- MON, TUE, ..., ALL
     start_time TIME,
@@ -499,7 +499,7 @@ CREATE TABLE gateway_availability (
 #### 4. `daily_gateway_quotas` - Usage Tracking
 ```sql
 CREATE TABLE daily_gateway_quotas (
-    id_quota INT PRIMARY KEY AUTO_INCREMENT,
+    id   INT PRIMARY KEY AUTO_INCREMENT,
     biller_id INT NOT NULL,
     gateway_id INT NOT NULL,
     quota_date DATE NOT NULL,
@@ -515,7 +515,7 @@ CREATE TABLE daily_gateway_quotas (
 #### 5. `transactions` - Transaction Log
 ```sql
 CREATE TABLE transactions (
-    id_transaction BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id  BIGINT PRIMARY KEY AUTO_INCREMENT,
     transaction_code VARCHAR(100) UNIQUE NOT NULL,
     biller_id INT NOT NULL,
     gateway_id INT NOT NULL,
