@@ -1043,19 +1043,6 @@ mvn clean test jacoco:report
 
 ### Test Coverage
 
-The project includes comprehensive tests for:
-
-#### Unit Tests
-- ✅ `RoutingAlgorithmServiceTest` - Algorithm logic
-- ✅ `GatewayServiceTest` - Gateway CRUD operations
-- ✅ `TransactionServiceTest` - Transaction creation
-- ✅ `QuotaServiceTest` - Quota calculations
-- ✅ `CommissionCalculationTest` - Fee calculations
-
-#### Integration Tests
-- ✅ `PaymentControllerIntegrationTest` - End-to-end API tests
-- ✅ `DatabaseIntegrationTest` - JPA repository tests
-- ✅ `SecurityIntegrationTest` - JWT authentication tests
 
 ### Manual API Testing with Postman
 
