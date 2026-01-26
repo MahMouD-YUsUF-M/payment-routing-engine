@@ -194,7 +194,7 @@ boolean fitAmount(Gateway gateway, BigDecimal amount)
 
 **Logic:**
 - ✅ `amount > gateway.minTransaction` → PASS
-- ✅ `amount < gateway.maxTransaction` (or maxTransaction = 0 for unlimited) → PASS
+- ✅ `amount < gateway.maxTransaction` → PASS
 - ❌ Otherwise → REJECT
 
 **Example:**
