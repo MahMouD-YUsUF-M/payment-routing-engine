@@ -426,7 +426,7 @@ FUNCTION recommendGateway(billerCode, amount, urgency):
 ┌─────────────┐         ┌──────────────────┐         ┌─────────────────┐
 │   BILLERS   │         │ PAYMENT_GATEWAYS │         │GATEWAY_         │
 │             │         │                  │         │AVAILABILITY     │
-│ id          │◄───┐    │ id         (PK)  │◄────────│                 │
+│ id (PK)     │◄───┐    │ id         (PK)  │◄────────│                 │
 │ code        │    │    │ code             │         │ gateway_id (FK) │
 │ name        │    │    │ commission_fixed │         │ day_of_week     │
 │ email       │    │    │ commission_%     │         │ start_time      │
@@ -460,7 +460,7 @@ FUNCTION recommendGateway(billerCode, amount, urgency):
 ```sql
 CREATE TABLE billers (
     id  INT PRIMARY KEY AUTO_INCREMENT,
-    code_biller VARCHAR(50) UNIQUE NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255),
     status VARCHAR(20) DEFAULT 'ACTIVE'
@@ -471,7 +471,7 @@ CREATE TABLE billers (
 ```sql
 CREATE TABLE payment_gateways (
     id  INT PRIMARY KEY AUTO_INCREMENT,
-    code_gateway VARCHAR(50) UNIQUE NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     commission_fixed DECIMAL(10,2) NOT NULL,
     commission_percentage DECIMAL(5,4) NOT NULL,
@@ -516,7 +516,7 @@ CREATE TABLE daily_gateway_quotas (
 ```sql
 CREATE TABLE transactions (
     id  BIGINT PRIMARY KEY AUTO_INCREMENT,
-    transaction_code VARCHAR(100) UNIQUE NOT NULL,
+    code VARCHAR(100) UNIQUE NOT NULL,
     biller_id INT NOT NULL,
     gateway_id INT NOT NULL,
     amount DECIMAL(15,2) NOT NULL,
