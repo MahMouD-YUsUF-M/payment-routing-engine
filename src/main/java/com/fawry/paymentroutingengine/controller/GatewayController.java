@@ -32,20 +32,20 @@ public class GatewayController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Create gateway", description = "Create a new payment gateway (code auto-generated)")
-    public ResponseEntity<GatewayResponse> createGateway(
+    public ResponseEntity<ApiResponse<GatewayResponse>> createGateway(
             @Valid @RequestBody GatewayCreateRequest request
     ) {
         log.info("Create gateway request received for: {}", request.getName());
         GatewayResponse response = gatewayService.createGateway(request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(response , "Gateway created successfully with code: " + response.getCode()).getData());
+                .body(ApiResponse.success(response , "Gateway created successfully with code: " + response.getCode()));
     }
 
     @PutMapping("/{code}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update gateway", description = "Update Gateway")
-    public ResponseEntity<GatewayResponse> updateGateway(
+    public ResponseEntity<ApiResponse<GatewayResponse>> updateGateway(
             @PathVariable String code,
             @Valid @RequestBody GatewayUpdateRequest request
     )
@@ -54,7 +54,7 @@ public class GatewayController {
         GatewayResponse response = gatewayService.updateGateway(code ,request);
 
         return ResponseEntity.ok(
-                ApiResponse.success(response , "Gateway updated successfully with code: " + response.getCode()).getData()
+                ApiResponse.success(response , "Gateway updated successfully with code: " + response.getCode())
         );
     }
 

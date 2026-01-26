@@ -1,0 +1,1062 @@
+{
+  "info": {
+    "name": "Payment Routing Engine API",
+    "description": "Complete API collection for Fawry Payment Routing Engine with smart gateway recommendation algorithm",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.data && jsonData.data.token) {",
+                  "        pm.environment.set('jwt_token', jsonData.data.token);",
+                  "        pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "        console.log('JWT Token saved: ' + jsonData.data.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticate user and receive JWT token. Default credentials: admin/password"
+          },
+          "response": [
+            {
+              "name": "Login Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": ["{{base_url}}"],
+                  "path": ["auth", "login"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"type\": \"Bearer\",\n    \"username\": \"admin\",\n    \"email\": \"admin@fawry.com\",\n    \"role\": \"ADMIN\"\n  },\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/health",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "health"]
+            },
+            "description": "Check if authentication service is running"
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints for login and token management"
+    },
+    {
+      "name": "2. Payment Routing (CORE)",
+      "item": [
+        {
+          "name": "Recommend Gateway - INSTANT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 1000.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Get optimal gateway recommendation for INSTANT payment. Algorithm filters to instant gateways only."
+          },
+          "response": [
+            {
+              "name": "Recommendation Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 1000.00,\n  \"urgency\": \"INSTANT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/payment/recommend",
+                  "host": ["{{base_url}}"],
+                  "path": ["payment", "recommend"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Gateway recommendation generated successfully\",\n  \"data\": {\n    \"recommendedGateway\": {\n      \"id\": 1,\n      \"code\": \"GW_VODAFONEC\",\n      \"name\": \"Vodafone Cash\",\n      \"estimatedCommission\": 17.00,\n      \"urgency\": \"INSTANT\",\n      \"remainingQuota\": 20000.00\n    },\n    \"alternatives\": [\n      {\n        \"id\": 3,\n        \"code\": \"GW_CREDITCAR\",\n        \"name\": \"Credit Card Gateway\",\n        \"estimatedCommission\": 25.00,\n        \"urgency\": \"CAN_WAIT\"\n      }\n    ],\n    \"recommendationReason\": \"Lowest commission (17.00 EGP) among available gateways\"\n  },\n  \"timestamp\": \"2025-01-26T14:30:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Recommend Gateway - CAN_WAIT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 1000.00,\n  \"urgency\": \"CAN_WAIT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Get optimal gateway recommendation for CAN_WAIT payment. Algorithm considers ALL gateways (instant + slow) for pure cost optimization."
+          },
+          "response": []
+        },
+        {
+          "name": "Recommend Gateway - Large Amount",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 50000.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Test gateway recommendation with large amount to verify quota and limit checks"
+          },
+          "response": []
+        }
+      ],
+      "description": "Core payment routing algorithms - smart gateway recommendation based on amount, urgency, and availability"
+    },
+    {
+      "name": "3. Gateway Management",
+      "item": [
+        {
+          "name": "Create Gateway",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Orange Money\",\n  \"commissionFixed\": 1.50,\n  \"commissionPercentage\": 0.0120,\n  \"minTransaction\": 20.00,\n  \"maxTransaction\": 3000.00,\n  \"dailyLimit\": 40000.00,\n  \"processingTime\": 0,\n  \"isActive\": true,\n  \"availability\": [\n    {\n      \"dayOfWeek\": \"ALL\",\n      \"startTime\": null,\n      \"endTime\": null,\n      \"is24_7\": true\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/gateways",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways"]
+            },
+            "description": "Create new payment gateway. Code is auto-generated (GW_GATEWAYNAME). Requires ADMIN role."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Gateways",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/gateways",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways"]
+            },
+            "description": "Retrieve all payment gateways with their configurations"
+          },
+          "response": [
+            {
+              "name": "Get All Gateways Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/admin/gateways",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "gateways"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Retrieved 3 gateways\",\n  \"data\": [\n    {\n      \"code\": \"GW_VODAFONEC\",\n      \"name\": \"Vodafone Cash\",\n      \"commissionFixed\": 2.00,\n      \"commissionPercentage\": 0.0150,\n      \"minTransaction\": 10.00,\n      \"maxTransaction\": 5000.00,\n      \"dailyLimit\": 50000.00,\n      \"processingTime\": 0,\n      \"isActive\": true,\n      \"availability\": [\n        {\n          \"dayOfWeek\": \"ALL\",\n          \"startTime\": null,\n          \"endTime\": null,\n          \"is24_7\": true\n        }\n      ],\n      \"createdAt\": \"2025-01-20T10:00:00\",\n      \"updatedAt\": \"2025-01-20T10:00:00\"\n    }\n  ],\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Gateway by Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/gateways/GW_VODAFONEC",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways", "GW_VODAFONEC"]
+            },
+            "description": "Get specific gateway details by gateway code"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Gateway - Commission",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"commissionFixed\": 3.00,\n  \"commissionPercentage\": 0.0180\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/gateways/GW_VODAFONEC",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways", "GW_VODAFONEC"]
+            },
+            "description": "Update gateway commission rates only. All fields are optional - send only what you want to update."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Gateway - Limits",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"minTransaction\": 15.00,\n  \"maxTransaction\": 6000.00,\n  \"dailyLimit\": 60000.00\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/gateways/GW_VODAFONEC",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways", "GW_VODAFONEC"]
+            },
+            "description": "Update gateway transaction limits"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Gateway - Availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"availability\": [\n    {\n      \"dayOfWeek\": \"MON\",\n      \"startTime\": \"09:00:00\",\n      \"endTime\": \"17:00:00\",\n      \"is24_7\": false\n    },\n    {\n      \"dayOfWeek\": \"TUE\",\n      \"startTime\": \"09:00:00\",\n      \"endTime\": \"17:00:00\",\n      \"is24_7\": false\n    },\n    {\n      \"dayOfWeek\": \"WED\",\n      \"startTime\": \"09:00:00\",\n      \"endTime\": \"17:00:00\",\n      \"is24_7\": false\n    },\n    {\n      \"dayOfWeek\": \"THU\",\n      \"startTime\": \"09:00:00\",\n      \"endTime\": \"17:00:00\",\n      \"is24_7\": false\n    },\n    {\n      \"dayOfWeek\": \"FRI\",\n      \"startTime\": \"09:00:00\",\n      \"endTime\": \"17:00:00\",\n      \"is24_7\": false\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/gateways/GW_BANKTRANS",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways", "GW_BANKTRANS"]
+            },
+            "description": "Update gateway availability schedule"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Gateway - Disable",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/gateways/GW_VODAFONEC",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways", "GW_VODAFONEC"]
+            },
+            "description": "Disable/enable gateway without deleting it"
+          },
+          "response": []
+        }
+      ],
+      "description": "CRUD operations for payment gateway management"
+    },
+    {
+      "name": "4. Biller Management",
+      "item": [
+        {
+          "name": "Create Biller",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codeBiller\": \"BILL_NEW\",\n  \"name\": \"New Company Ltd\",\n  \"email\": \"billing@newcompany.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/billers",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "billers"]
+            },
+            "description": "Create new biller account. Code is auto-generated (BI_COMPANYNAME). Requires ADMIN role."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Biller by Code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/billers/BI_ABCCORPORA",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "billers", "BI_ABCCORPORA"]
+            },
+            "description": "Retrieve biller details by code"
+          },
+          "response": [
+            {
+              "name": "Get Biller Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/admin/billers/BI_ABCCORPORA",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "billers", "BI_ABCCORPORA"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Biller retrieved successfully\",\n  \"data\": {\n    \"codeBiller\": \"BI_ABCCORPORA\",\n    \"name\": \"ABC Corporation\",\n    \"email\": \"billing@abc.com\"\n  },\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Biller (merchant/client) management endpoints"
+    },
+    {
+      "name": "5. Transactions",
+      "item": [
+        {
+          "name": "Create Transaction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gateWayCode\": \"GW_VODAFONEC\",\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 1000.00,\n  \"commission\": 17.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["billers", "BI_ABCCORPORA", "transactions"]
+            },
+            "description": "Create a new payment transaction. Validates against gateway limits and quota."
+          },
+          "response": [
+            {
+              "name": "Transaction Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"gateWayCode\": \"GW_VODAFONEC\",\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 1000.00,\n  \"commission\": 17.00,\n  \"urgency\": \"INSTANT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions",
+                  "host": ["{{base_url}}"],
+                  "path": ["billers", "BI_ABCCORPORA", "transactions"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Transaction created successfully\",\n  \"data\": {\n    \"code\": \"TXN-a3f2c891-4b5e-6d7f-8901-234567890abc\",\n    \"billerCode\": \"BI_ABCCORPORA\",\n    \"gatewayCode\": \"GW_VODAFONEC\",\n    \"gatewayName\": \"Vodafone Cash\",\n    \"amount\": 1000.00,\n    \"commission\": 17.00,\n    \"urgency\": \"INSTANT\",\n    \"status\": \"COMPLETED\",\n    \"createdAt\": \"2025-01-26T14:30:00\",\n    \"completedAt\": \"2025-01-26T14:30:02\"\n  },\n  \"timestamp\": \"2025-01-26T14:30:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Transactions - All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["billers", "BI_ABCCORPORA", "transactions"]
+            },
+            "description": "Get all transactions for a biller"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transactions - By Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions?date=2025-01-26",
+              "host": ["{{base_url}}"],
+              "path": ["billers", "BI_ABCCORPORA", "transactions"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2025-01-26"
+                }
+              ]
+            },
+            "description": "Get transactions filtered by specific date (YYYY-MM-DD)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction Summary - Today",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions/summary",
+              "host": ["{{base_url}}"],
+              "path": ["billers", "BI_ABCCORPORA", "transactions", "summary"]
+            },
+            "description": "Get aggregated transaction summary for today (defaults to current date)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction Summary - Date Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions/summary?startDate=2025-01-01&endDate=2025-01-31",
+              "host": ["{{base_url}}"],
+              "path": ["billers", "BI_ABCCORPORA", "transactions", "summary"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-01-31"
+                }
+              ]
+            },
+            "description": "Get aggregated transaction summary for a date range with gateway breakdown"
+          },
+          "response": [
+            {
+              "name": "Summary Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions/summary?startDate=2025-01-01&endDate=2025-01-31",
+                  "host": ["{{base_url}}"],
+                  "path": ["billers", "BI_ABCCORPORA", "transactions", "summary"],
+                  "query": [
+                    {
+                      "key": "startDate",
+                      "value": "2025-01-01"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2025-01-31"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Transaction summary generated successfully\",\n  \"data\": {\n    \"billerCode\": \"BI_ABCCORPORA\",\n    \"period\": {\n      \"startDate\": \"2025-01-01\",\n      \"endDate\": \"2025-01-31\"\n    },\n    \"totalTransactions\": 45,\n    \"totalAmount\": 125000.00,\n    \"totalCommission\": 2450.00,\n    \"byGateway\": [\n      {\n        \"gatewayCode\": \"GW_VODAFONEC\",\n        \"gatewayName\": \"Vodafone Cash\",\n        \"transactionCount\": 30,\n        \"totalAmount\": 85000.00,\n        \"totalCommission\": 1675.00,\n        \"averageCommission\": 55.83\n      },\n      {\n        \"gatewayCode\": \"GW_BANKTRANS\",\n        \"gatewayName\": \"Bank Transfer\",\n        \"transactionCount\": 15,\n        \"totalAmount\": 40000.00,\n        \"totalCommission\": 775.00,\n        \"averageCommission\": 51.67\n      }\n    ],\n    \"byStatus\": {\n      \"COMPLETED\": 43,\n      \"FAILED\": 2\n    }\n  },\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Transaction creation and history endpoints"
+    },
+    {
+      "name": "6. Testing Scenarios",
+      "item": [
+        {
+          "name": "Test - No Available Gateway (Quota Exceeded)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 100000.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Test with amount exceeding all gateway daily limits to trigger NoAvailableGatewayException"
+          },
+          "response": []
+        },
+        {
+          "name": "Test - Amount Below Min Limit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 5.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Test with amount below all gateway minimum limits"
+          },
+          "response": []
+        },
+        {
+          "name": "Test - Invalid Biller",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"INVALID_BILLER\",\n  \"amount\": 1000.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Test with non-existent biller code to trigger BillerNotFoundException"
+          },
+          "response": []
+        },
+        {
+          "name": "Test - Instant vs CAN_WAIT Comparison",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 5000.00,\n  \"urgency\": \"CAN_WAIT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Compare CAN_WAIT result with INSTANT to see cost savings. Run this, then change urgency to INSTANT and compare commissions."
+          },
+          "response": []
+        },
+        {
+          "name": "Test - Gateway Outside Operating Hours",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 1000.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Test during non-business hours (e.g., 10 PM) to see if Bank Transfer gateway is filtered out (Sun-Thu 9AM-5PM only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Test - Multiple Transactions for Quota Testing",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 10000.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Run this multiple times (5-10 times) to exhaust quota and observe gateway selection changes"
+          },
+          "response": []
+        }
+      ],
+      "description": "Test scenarios to verify algorithm behavior, error handling, and edge cases"
+    },
+    {
+      "name": "7. Error Responses",
+      "item": [
+        {
+          "name": "Example - Unauthorized (No Token)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/gateways",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways"]
+            },
+            "description": "Test unauthorized access (no JWT token provided)"
+          },
+          "response": [
+            {
+              "name": "Unauthorized Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/admin/gateways",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "gateways"]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized - JWT token missing or invalid\",\n  \"error\": \"UNAUTHORIZED\",\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Example - Forbidden (Insufficient Permissions)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Gateway\",\n  \"commissionFixed\": 1.00,\n  \"commissionPercentage\": 0.01,\n  \"minTransaction\": 10.00,\n  \"maxTransaction\": 1000.00,\n  \"dailyLimit\": 10000.00,\n  \"processingTime\": 0,\n  \"isActive\": true,\n  \"availability\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/gateways",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways"]
+            },
+            "description": "Test with USER role trying to access ADMIN endpoint"
+          },
+          "response": [
+            {
+              "name": "Forbidden Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Test Gateway\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/gateways",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "gateways"]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Access denied - Insufficient permissions\",\n  \"error\": \"FORBIDDEN\",\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Example - Resource Not Found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/gateways/INVALID_CODE",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "gateways", "INVALID_CODE"]
+            },
+            "description": "Test with non-existent gateway code"
+          },
+          "response": [
+            {
+              "name": "Not Found Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/admin/gateways/INVALID_CODE",
+                  "host": ["{{base_url}}"],
+                  "path": ["admin", "gateways", "INVALID_CODE"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Gateway not found with code: INVALID_CODE\",\n  \"error\": \"RESOURCE_NOT_FOUND\",\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Example - Validation Error",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"\",\n  \"amount\": -100,\n  \"urgency\": \"INVALID\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Test with invalid request data to trigger validation errors"
+          },
+          "response": [
+            {
+              "name": "Validation Error Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"billerCode\": \"\",\n  \"amount\": -100,\n  \"urgency\": \"INVALID\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/payment/recommend",
+                  "host": ["{{base_url}}"],
+                  "path": ["payment", "recommend"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Validation failed\",\n  \"error\": \"VALIDATION_ERROR\",\n  \"details\": {\n    \"billerCode\": \"biller code is required\",\n    \"amount\": \"amount required be positive\",\n    \"urgency\": \"must be one of: INSTANT, CAN_WAIT\"\n  },\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Example - No Available Gateway",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 999999.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payment/recommend",
+              "host": ["{{base_url}}"],
+              "path": ["payment", "recommend"]
+            },
+            "description": "Test with amount exceeding all gateway limits"
+          },
+          "response": [
+            {
+              "name": "No Gateway Available Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 999999.00,\n  \"urgency\": \"INSTANT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/payment/recommend",
+                  "host": ["{{base_url}}"],
+                  "path": ["payment", "recommend"]
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"No available gateway found for amount: 999999.00\",\n  \"error\": \"NO_AVAILABLE_GATEWAY\",\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Example - Insufficient Quota",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gateWayCode\": \"GW_VODAFONEC\",\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 60000.00,\n  \"commission\": 920.00,\n  \"urgency\": \"INSTANT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["billers", "BI_ABCCORPORA", "transactions"]
+            },
+            "description": "Test transaction creation when daily quota is exceeded"
+          },
+          "response": [
+            {
+              "name": "Insufficient Quota Response",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"gateWayCode\": \"GW_VODAFONEC\",\n  \"billerCode\": \"BI_ABCCORPORA\",\n  \"amount\": 60000.00,\n  \"commission\": 920.00,\n  \"urgency\": \"INSTANT\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/billers/BI_ABCCORPORA/transactions",
+                  "host": ["{{base_url}}"],
+                  "path": ["billers", "BI_ABCCORPORA", "transactions"]
+                }
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Insufficient daily quota. Remaining: 5000.00\",\n  \"error\": \"INSUFFICIENT_QUOTA\",\n  \"timestamp\": \"2025-01-26T10:00:00\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Examples of all possible error responses from the API"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// This script runs before every request",
+          "// You can add global pre-request logic here",
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// This script runs after every request",
+          "// You can add global test assertions here",
+          "",
+          "// Log response time",
+          "console.log('Response time: ' + pm.response.responseTime + 'ms');",
+          "",
+          "// Check response format",
+          "pm.test('Response has correct structure', function() {",
+          "    var jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('success');",
+          "    pm.expect(jsonData).to.have.property('timestamp');",
+          "});"
+        ]
+      }
+    }
+  ]
+}
