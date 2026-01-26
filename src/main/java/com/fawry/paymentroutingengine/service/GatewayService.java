@@ -29,11 +29,11 @@ public class GatewayService {
 
     @Transactional
     public GatewayResponse createGateway(GatewayCreateRequest request) {
-        log.info("Creating new gateway: {}", request.getName());
+        log.debug("Creating new gateway: {}", request.getName());
 
         // Auto-generate unique gateway code
         String generatedCode = generateUniqueGatewayCode(request.getName());
-        log.info("Generated gateway code: {}", generatedCode);
+        log.debug("Generated gateway code: {}", generatedCode);
 
         Gateway gateway = new Gateway();
         gateway.setCode(generatedCode);
@@ -52,7 +52,7 @@ public class GatewayService {
             List<GatewayAvailability> availabilities = request.getAvailability().stream()
                     .map(availReq -> {
                         GatewayAvailability availability = new GatewayAvailability();
-                        availability.setGatewayId(savedGateway.getId().intValue());
+                        availability.setGatewayId(savedGateway.getId());
                         availability.setDayWeek(availReq.getDayOfWeek());
                         availability.setStartTime(availReq.getStartTime());
                         availability.setEndTime(availReq.getEndTime());
@@ -64,7 +64,7 @@ public class GatewayService {
             availabilityRepository.saveAll(availabilities);
         }
 
-        log.info("Gateway created successfully: {}", savedGateway.getCode());
+        log.debug("Gateway created successfully: {}", savedGateway.getCode());
         return mapToResponse(savedGateway);
     }
 
@@ -72,15 +72,22 @@ public class GatewayService {
 
     @Transactional(readOnly = true)
     public GatewayResponse getGatewayByCode(String code) {
-        log.info("Fetching gateway with code: {}", code);
+        log.debug("Fetching gateway with code: {}", code);
         Gateway gateway = gatewayRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException("Gateway not found with code: " + code));
         return mapToResponse(gateway);
     }
+    @Transactional(readOnly = true)
+    public List<GatewayResponse> getAllGateways() {
+        log.debug("Fetching all gateways");
+        return gatewayRepository.findAll().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public GatewayResponse updateGateway(String code, GatewayUpdateRequest request) {
-        log.info("Updating gateway with code: {}", code);
+        log.debug("Updating gateway with code: {}", code);
 
         Gateway gateway = gatewayRepository.findByCode(code)
                 .orElseThrow(() -> new ResourceNotFoundException("Gateway not found with code: " + code));
@@ -113,12 +120,16 @@ public class GatewayService {
         }
 
         if (request.getAvailability() != null && !request.getAvailability().isEmpty()) {
-            availabilityRepository.deleteByGatewayId(gateway.getId());
+            log.debug("Deleted  availabilities for gateway {}", gateway.getCode());
+
+            int numberOfAvailabilities = availabilityRepository.deleteByGatewayId(gateway.getId());
+            availabilityRepository.flush(); // ← CRITICAL: Force immediate delete
+            log.debug("Deleted {}  availabilities for gateway {}",numberOfAvailabilities, gateway.getCode());
 
             List<GatewayAvailability> availabilities = request.getAvailability().stream()
                     .map(availReq -> {
                         GatewayAvailability availability = new GatewayAvailability();
-                        availability.setGatewayId(gateway.getId().intValue());
+                        availability.setGatewayId(gateway.getId());
                         availability.setDayWeek(availReq.getDayOfWeek());
                         availability.setStartTime(availReq.getStartTime());
                         availability.setEndTime(availReq.getEndTime());
@@ -131,7 +142,7 @@ public class GatewayService {
         }
 
         Gateway updatedGateway = gatewayRepository.save(gateway);
-        log.info("Gateway updated successfully: {}", updatedGateway.getCode());
+        log.debug("Gateway updated successfully: {}", updatedGateway.getCode());
 
         return mapToResponse(updatedGateway);
     }

@@ -16,13 +16,15 @@ public interface GatewayAvailabilityRepository extends JpaRepository<GatewayAvai
 
     @Query("SELECT ga FROM GatewayAvailability ga " +
             "WHERE ga.gatewayId = :gatewayId " +
-            "AND (ga.dayOfWeek = :dayOfWeek OR ga.dayOfWeek = 'ALL')")
+            "AND (ga.dayWeek = :dayWeek OR ga.dayWeek = DayType.ALL)")
     List<GatewayAvailability> findAvailabilityForDay(
             @Param("gatewayId") Long gatewayId,
-            @Param("dayOfWeek") DayType dayOfWeek
+            @Param("dayWeek") DayType dayWeek
     );
 
-    void deleteByGatewayId(Long gatewayId);
+    @Modifying
+    @Query("DELETE FROM GatewayAvailability ga WHERE ga.gatewayId = :gatewayId")
+    int deleteByGatewayId(@Param("gatewayId") Long gatewayId);
 
 
     List<GatewayAvailability> findByGatewayId(Long gatewayId);

@@ -14,6 +14,10 @@ import com.fawry.paymentroutingengine.repository.GateWayRepository;
 import com.fawry.paymentroutingengine.dto.request.PaymentRecommendationRequest;
 import com.fawry.paymentroutingengine.dto.response.GatewayRecommendationResponse;
 import com.fawry.paymentroutingengine.exception.BillerNotFoundException;
+import com.fawry.paymentroutingengine.exception.NoAvailableGatewayException;
+import com.fawry.paymentroutingengine.service.TransactionService;
+import com.fawry.paymentroutingengine.dto.request.TransactionCreateRequest;
+import com.fawry.paymentroutingengine.service.TransactionService;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -22,7 +26,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -42,6 +45,9 @@ public class RoutingAlgorithmService {
     @Autowired
     private QuotaService quotaService;
 
+    @Autowired
+    private TransactionService transactionService;
+
         public GatewayRecommendationResponse recommendGateway(PaymentRecommendationRequest request) {
 
             log.info("Starting gateway recommendation for biller: {}, amount: {}, urgency: {}",
@@ -55,8 +61,8 @@ public class RoutingAlgorithmService {
 
             gateways = gateways.stream()
                     .filter(g -> fitAmount(g , request.getAmount()))
-                    .filter(g , g -> isAvaliableNow(g))
-                    .filter(g , g -> hasQuotaRemaining(biller.getId(), g, request.getAmount()))
+                    .filter(this::isAvailableNow)
+                    .filter(g -> hasQuotaRemaining(biller.getId(), g, request.getAmount()))
                     .collect(Collectors.toList());
 
 
@@ -67,9 +73,10 @@ public class RoutingAlgorithmService {
             }
 
             if (request.getUrgency() == Urgency.INSTANT){
-                    List<Gateway> instantGateways = gateways.stream().
-                                                    filter(g -> (g.getProcessingTime()).equals(BigDecimal.ZERO))
+                    List<Gateway> instantGateways = gateways.stream()
+                                                    .filter(g -> g.getProcessingTime().compareTo(BigDecimal.ZERO) == 0)
                                                     .collect(Collectors.toList());
+                log.debug("After hard filters: {} INSTANT gateways remaining", gateways.size());
 
                 if (!instantGateways.isEmpty()) {
                     gateways = instantGateways;
@@ -93,6 +100,9 @@ public class RoutingAlgorithmService {
                     scoredGateways.get(0).getGateway().getCode(),
                     scoredGateways.get(0).getCommission());
 
+
+            transactionService.createTransaction(request.getBillerCode(), scoredGateways.get(0).getGateway().getCode(), request.getAmount());
+
             return buildResponse(scoredGateways, request.getAmount());
 
         }
@@ -115,7 +125,7 @@ public class RoutingAlgorithmService {
             return true;
        }
 
-       private boolean isAvaliableNow(Gateway gateway) {
+       private boolean isAvailableNow(Gateway gateway) {
             LocalDateTime now = LocalDateTime.now();
             String Day = now.getDayOfWeek().toString().substring(0, 3);
             DayType currentDay = DayType.valueOf(Day);
@@ -151,7 +161,7 @@ public class RoutingAlgorithmService {
        private boolean hasQuotaRemaining(Long  billerId, Gateway gateway, BigDecimal amount ) {
             BigDecimal remainingQuota = quotaService.getRemainingQuota(billerId, gateway.getId());
 
-            boolean hasQuota = amount.compareTo(remainingQuota) >= 0;
+            boolean hasQuota = amount.compareTo(remainingQuota) <= 0;
 
            if (!hasQuota) {
                log.debug("Gateway {} rejected: insufficient quota. Required: {}, Remaining: {}",

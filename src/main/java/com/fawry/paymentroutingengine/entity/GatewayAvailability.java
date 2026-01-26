@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "gateway_availability" , uniqueConstraints = @UniqueConstraint(
-        columnNames = {
-        "gateway_id", "day_of_week"
-}))
+@Table(name = "gateway_availability", uniqueConstraints = @UniqueConstraint(
+        columnNames = {"gateway_id", "day_week"}
+))
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,7 +27,7 @@ public class GatewayAvailability {
     private Long id;
 
     @Column(name = "gateway_id", nullable = false)
-    private Integer gatewayId;
+    private Long gatewayId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "day_week", nullable = false, length = 10)

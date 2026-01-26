@@ -1,6 +1,7 @@
 package com.fawry.paymentroutingengine.service;
 
 import com.fawry.paymentroutingengine.constant.Status;
+import com.fawry.paymentroutingengine.constant.Urgency;
 import com.fawry.paymentroutingengine.dto.request.TransactionCreateRequest;
 import com.fawry.paymentroutingengine.dto.response.TransactionResponse;
 import com.fawry.paymentroutingengine.dto.response.TransactionSummaryResponse;
@@ -88,6 +89,56 @@ public class TransactionService {
 
         log.info("Transaction created successfully: {}", savedTransaction.getCode());
         return mapToResponse(savedTransaction, biller, gateway);
+    }
+
+    @Transactional
+    public void createTransaction(String billerCode, String gatewayCode, BigDecimal amount) {
+        log.info("Creating transaction for biller: {}, gateway: {}, amount: {}",
+                billerCode, gatewayCode, amount);
+
+        Biller biller = billerRepository.findByCode(billerCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Biller not found: " + billerCode));
+
+        Gateway gateway = gatewayRepository.findByCode(gatewayCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Gateway not found: " + gatewayCode));
+
+        if (!gateway.getIsActive()) {
+            throw new InvalidTransactionException("Gateway is not active: " + gateway.getName());
+        }
+
+        if (amount.compareTo(gateway.getMinTransaction()) < 0) {
+            throw new InvalidTransactionException("Amount below minimum transaction limit");
+        }
+
+        if (gateway.getMaxTransaction().compareTo(BigDecimal.ZERO) > 0 &&
+                amount.compareTo(gateway.getMaxTransaction()) > 0) {
+            throw new InvalidTransactionException("Amount exceeds maximum transaction limit");
+        }
+
+        BigDecimal remainingQuota = getRemainingQuota(biller.getId(), gateway.getId());
+        if (remainingQuota.compareTo(amount) < 0) {
+            throw new InsufficientQuotaException("Insufficient daily quota. Remaining: " + remainingQuota);
+        }
+
+        BigDecimal commission = gatewayService.calculateCommissionForGateway(gateway, amount );
+
+        Transaction transaction = new Transaction();
+        transaction.setCode("TXN-" + UUID.randomUUID().toString());
+        transaction.setBillerId(biller.getId().intValue());
+        transaction.setGatewayId(gateway.getId().intValue());
+        transaction.setAmount(amount);
+        transaction.setCommission(commission);
+        transaction.setUrgency(Urgency.INSTANT);
+        transaction.setStatus(Status.COMPLETED);
+        transaction.setProcessingTime(gateway.getProcessingTime().toString() + " seconds");
+        transaction.setCompletedAt(LocalDateTime.now());
+
+        Transaction savedTransaction = transactionRepository.save(transaction);
+
+        updateQuota(biller.getId(), gateway.getId(), amount);
+
+        log.info("Transaction created successfully: {}", savedTransaction.getCode());
+
     }
 
     @Transactional(readOnly = true)
